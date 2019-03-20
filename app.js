@@ -28,6 +28,10 @@ var yAxis = d3.axisLeft(yScale)
               .tickSize(- width + 2 * padding)
               .tickSizeOuter(0);
 
+var tooltip = d3.select("body")
+                .append("div")
+                  .classed("tooltip", true);
+
 var svg = d3.select("svg")
               .attr("width", width)
               .attr("height", height);
@@ -63,14 +67,38 @@ svg
     .attr("cy", d => yScale(d.subscribersPer100))
     .attr("r", d => rScale(d.medianAge))
     .attr("fill", d => fScale(d.urbanPopulationRate))
-    .attr("stroke", "#fff");
-
+    .attr("stroke", "#fff")
+    .on("mousemove", showTooltip)
+    .on("touchstart", showTooltip)
+    .on("mouseout", hideTooltip)
+    .on("touchend", hideTooltip);
+  
+  
 svg.append("text")
     .attr("x", width / 2)
     .attr("dy", "1em")
     .style("text-anchor", "middle")
     .style("font-size", "2em")
     .text("Cellular Subscriptions vs. Literacy Rate");
+
+function showTooltip(d) {
+      tooltip
+        .style("opacity", 1)
+        .style("left", d3.event.x - (tooltip.node().offsetWidth / 2) + "px")
+        .style("top", d3.event.y + 25 +"px")
+        .html(`
+            <p>Region: ${d.region}</p>
+            <p>Births: ${d.births.toLocaleString()}</p>
+            <p>Population: ${d.populatiton.toLocaleString()}</p>
+            <p>Area: ${d.area.toLocaleString()}</p>
+            <p>Life Expectancy: ${d.lifeExpectancy}</p> 
+        `);
+}
+
+function hideTooltip() {
+  tooltip
+    .style("opacity", 0);
+}
 
 function mustHaveKeys(obj) {
   var keys = [
